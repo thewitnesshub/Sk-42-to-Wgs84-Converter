@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SK‑42 → WGS84</title>
+  <style>
+    :root {
+      --bg: #0a0d12;
+      --bg-secondary: #0f1419;
+      --panel: #141b26;
+      --panel-2: #1a2332;
+      --border: rgba(255,255,255,.12);
+      --border-subtle: rgba(255,255,255,.06);
+      --muted: #8b9dc3;
+      --text: #e8f0fe;
+      --text-secondary: #b8c5d1;
+      --accent: #00d4ff;
+      --accent-2: #0099cc;
+      --accent-gradient: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+      --success: #00ff88;
+      --warning: #ffaa00;
+      --error: #ff4444;
+      --shadow: 0 20px 40px rgba(0,0,0,.6);
+      --shadow-lg: 0 25px 50px rgba(0,0,0,.8);
+      --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+      --radius: 16px;
+      --radius-lg: 20px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+    
+    html, body { 
+      height: 100%; 
+      overflow-x: hidden;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: var(--text);
+      background: 
+        radial-gradient(circle at 20% 10%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 153, 204, 0.1) 0%, transparent 50%),
+        linear-gradient(135deg, var(--bg) 0%, var(--bg-secondary) 100%);
+      background-attachment: fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 212, 255, 0.01) 2px,
+          rgba(0, 212, 255, 0.01) 4px
+        );
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .card {
+      width: min(500px, 100%);
+      background: 
+        linear-gradient(145deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.02) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+      animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--accent-gradient);
+      opacity: 0.8;
+    }
+    
+    header { 
+      padding: 32px 28px 20px; 
+      border-bottom: 1px solid var(--border-subtle);
+      text-align: center;
+      position: relative;
+    }
+    
+    header h1 { 
+      font-size: clamp(24px, 4vw, 32px); 
+      letter-spacing: -0.5px; 
+      font-weight: 700;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+
+    .content { 
+      padding: 28px; 
+      display: grid; 
+      gap: 24px; 
+    }
+
+    .field { 
+      display: grid; 
+      gap: 12px; 
+    }
+    
+    label { 
+      font-size: 13px; 
+      color: var(--muted); 
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .inputRow { 
+      display: grid; 
+      grid-template-columns: 1fr auto; 
+      gap: 12px; 
+      align-items: center;
+    }
+
+    input[type="text"] {
+      width: 100%; 
+      padding: 16px 18px; 
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      font-size: 16px; 
+      line-height: 1.4; 
+      outline: none;
+      transition: var(--transition);
+      font-family: inherit;
+      backdrop-filter: blur(10px);
+    }
+    
+    input[type="text"]:focus { 
+      border-color: var(--accent); 
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2), var(--glow);
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-1px);
+    }
+    
+    input[type="text"]::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+
+    .btn { 
+      appearance: none; 
+      border: none; 
+      cursor: pointer; 
+      user-select: none;
+      padding: 16px 24px; 
+      border-radius: var(--radius); 
+      font-weight: 600; 
+      font-size: 15px;
+      font-family: inherit;
+      color: #ffffff;
+      background: var(--accent-gradient);
+      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      min-width: 120px;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+      opacity: 0;
+      transition: var(--transition);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 212, 255, 0.5);
+    }
+    
+    .btn:hover::before {
+      opacity: 1;
+    }
+    
+    .btn:active { 
+      transform: translateY(0); 
+    }
+    
+    .btn.secondary { 
+      background: rgba(255, 255, 255, 0.08); 
+      color: var(--text); 
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+    }
+    
+    .btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn.disabled { 
+      opacity: 0.4; 
+      pointer-events: none; 
+      transform: none !important;
+    }
+
+    .out { 
+      background: var(--panel-2); 
+      border: 1px solid var(--border); 
+      border-radius: var(--radius); 
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .outrow { 
+      display: grid !important; 
+      grid-template-columns: auto 1fr auto !important; 
+      gap: 16px; 
+      align-items: center; 
+      width: 100%;
+    }
+    
+    .outrow > * {
+      display: block;
+      margin: 0;
+    }
+    
+    .outrow > div:first-child {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    code.inline { 
+      background: rgba(0, 212, 255, 0.1); 
+      color: var(--accent);
+      padding: 10px 14px; 
+      border-radius: 10px; 
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .grid2 { 
+      display: grid; 
+      grid-template-columns: 1fr; 
+      gap: 16px; 
+    }
+    
+    .grid2 .btn {
+      justify-self: stretch;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .toast { 
+      position: fixed; 
+      left: 50%; 
+      bottom: 32px; 
+      transform: translateX(-50%);
+      background: var(--panel); 
+      border: 1px solid var(--border); 
+      color: var(--text);
+      padding: 12px 20px; 
+      border-radius: var(--radius); 
+      box-shadow: var(--shadow); 
+      opacity: 0; 
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      font-size: 14px;
+      font-weight: 500;
+      backdrop-filter: blur(20px);
+      z-index: 1000;
+    }
+    
+    .toast.show { 
+      opacity: 1; 
+      transform: translate(-50%, 0); 
+    }
+    
+    .toast.success {
+      background: rgba(0, 255, 136, 0.1);
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        margin: 10px;
+        border-radius: var(--radius);
+      }
+      
+      header {
+        padding: 24px 20px 16px;
+      }
+      
+      .content {
+        padding: 20px;
+        gap: 20px;
+      }
+      
+      .inputRow { 
+        grid-template-columns: 1fr; 
+        gap: 12px;
+      }
+      
+      .outrow { 
+        grid-template-columns: auto 1fr auto !important; 
+        gap: 12px;
+        text-align: left;
+      }
+      
+      .outrow > div:first-child {
+        order: 0;
+      }
+      
+      .btn {
+        padding: 14px 20px;
+        font-size: 14px;
+      }
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <header>
+      <h1>SK‑42 → WGS84</h1>
+      <div class="subtitle">Coordinate System Converter</div>
+    </header>
+    <div class="content">
+      <div class="field">
+        <label for="raw">X &amp; Y Coordinates</label>
+        <div class="inputRow">
+          <input type="text" id="raw" autocomplete="off" placeholder="X = 5171098    Y = 6481253" />
+          <button id="go" class="btn" aria-label="Convert coordinates">Convert</button>
+        </div>
+      </div>
+
+      <div class="out" id="out" hidden>
+        <div class="outrow">
+          <div>Result</div>
+          <div><code id="coords" class="inline">–</code></div>
+          <button class="btn secondary" id="copyAll" aria-label="Copy coordinates">📋 Copy</button>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <a id="gmaps" class="btn disabled" target="_blank" rel="noopener" href="#" aria-label="Open in Google Maps">Open in Google Maps</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">✅ Copied to clipboard!</div>
+
+<script>
+// Ellipsoids
+const Ellipsoid = { KRASS: { a: 6378245.0, invF: 298.3 }, WGS84: { a: 6378137.0, invF: 298.257223563 } };
+function ecc2(invF){ const f = 1.0/invF; return 2*f - f*f; }
+const toRad = d => d * Math.PI / 180; const toDeg = r => r * 180 / Math.PI;
+
+// Detect zone from million-prefix of Y
+function detectZone(y){ if (!(typeof y === 'number') || !isFinite(y) || y < 1e6) return null; const z = Math.floor(y / 1e6); return (z>=1&&z<=60)?z:null; }
+
+// Inverse Gauss–Krüger (SK‑42)
+function gkInverse(northing, easting_with_false, zone, ell=Ellipsoid.KRASS){
+  const a=ell.a, e2=ecc2(ell.invF), e4=e2*e2, e6=e4*e2, k0=1, x0=500000, lon0=toRad(zone*6-3);
+  const M=northing, mu=M/(a*(1-e2/4-3*e4/64-5*e6/256));
+  const e1=(1-Math.sqrt(1-e2))/(1+Math.sqrt(1-e2)), e1_2=e1*e1, e1_3=e1_2*e1, e1_4=e1_3*e1;
+  const J1=(3*e1/2-27*e1_3/32), J2=(21*e1_2/16-55*e1_4/32), J3=(151*e1_3/96), J4=(1097*e1_4/512);
+  const fp=mu+J1*Math.sin(2*mu)+J2*Math.sin(4*mu)+J3*Math.sin(6*mu)+J4*Math.sin(8*mu);
+  const sinfp=Math.sin(fp), cosfp=Math.cos(fp), tanfp=Math.tan(fp), eP2=e2/(1-e2);
+  const C1=eP2*cosfp*cosfp, T1=tanfp*tanfp, N1=a/Math.sqrt(1-e2*sinfp*sinfp), R1=a*(1-e2)/Math.pow(1-e2*sinfp*sinfp,1.5);
+  const D=(easting_with_false-x0)/(N1*k0), D2=D*D, D3=D2*D, D4=D2*D2, D5=D4*D, D6=D4*D2;
+  const lat=fp-(N1*tanfp/R1)*( D2/2 - (5+3*T1+10*C1 - 4*C1*C1 - 9*eP2)*D4/24 + (61+90*T1+298*C1+45*T1*T1 - 252*eP2 - 3*C1*C1)*D6/720 );
+  const lon=lon0+( D - (1+2*T1+C1)*D3/6 + (5-2*C1+28*T1 - 3*C1*C1 + 8*eP2 + 24*T1*T1)*D5/120 )/Math.cos(fp);
+  return { lat, lon };
+}
+
+// Geodetic ↔ ECEF
+function geodeticToECEF(lat,lon,h,ell){ const a=ell.a, e2=ecc2(ell.invF), s=Math.sin(lat), c=Math.cos(lat), N=a/Math.sqrt(1-e2*s*s); return {X:(N+h)*c*Math.cos(lon), Y:(N+h)*c*Math.sin(lon), Z:((1-e2)*N+h)*s}; }
+function ecefToGeodetic(X,Y,Z,ell){ const a=ell.a, e2=ecc2(ell.invF), b=a*Math.sqrt(1-e2), ep2=(a*a-b*b)/(b*b), p=Math.hypot(X,Y), th=Math.atan2(a*Z,b*p), lon=Math.atan2(Y,X), sTh=Math.sin(th), cTh=Math.cos(th), lat=Math.atan2(Z+ep2*b*sTh*sTh*sTh, p-e2*a*cTh*cTh*cTh), s=Math.sin(lat), N=a/Math.sqrt(1-e2*s*s), h=p/Math.cos(lat)-N; return { lat, lon, h }; }
+function applyHelmertXYZ(X,Y,Z,dx,dy,dz){ return { X:X+dx, Y:Y+dy, Z:Z+dz }; }
+
+function convertOnce(X,Y){
+  const zone=detectZone(Y); if(!zone) throw new Error('zone');
+  const localE=Y-zone*1e6;
+  const sk42=gkInverse(X,localE,zone,Ellipsoid.KRASS);
+  const dx=23.92,dy=-141.27,dz=-80.9; // SK‑42 → WGS84 (approx translation)
+  const ecefSK=geodeticToECEF(sk42.lat,sk42.lon,0,Ellipsoid.KRASS);
+  const ecefWG=applyHelmertXYZ(ecefSK.X,ecefSK.Y,ecefSK.Z,dx,dy,dz);
+  const geoWG=ecefToGeodetic(ecefWG.X,ecefWG.Y,ecefWG.Z,Ellipsoid.WGS84);
+  return { lat: toDeg(geoWG.lat), lon: toDeg(geoWG.lon) };
+}
+
+// Utilities (no regex in replacement to avoid editor issues)
+function isDigit(ch){ return ch>='0'&&ch<='9'; } function isNumChar(ch){ return isDigit(ch)||ch==='.'||ch==='-'; }
+function extractNumbers(s){ const nums=[]; let cur=''; for(let i=0;i<s.length;i++){ const ch=s[i]; if(isNumChar(ch)){ cur+=ch; } else { if(cur.length>0 && cur!=='-' && cur!=='.'){ nums.push(parseFloat(cur)); cur=''; } } } if(cur.length>0 && cur!=='-' && cur!=='.') nums.push(parseFloat(cur)); return nums; }
+
+function setLink(id, href, disabled){ const a=document.getElementById(id); a.href=disabled?'#':href; a.classList.toggle('disabled', !!disabled); }
+function disableLinks(){ setLink('gmaps','#',true); }
+
+function showOut(lat,lon){ const out=document.getElementById('out'); out.hidden=false; const s=lat.toFixed(6)+", "+lon.toFixed(6); document.getElementById('coords').textContent=s; }
+async function copyText(text){ try{ await navigator.clipboard.writeText(text); toast('✅ Copied to clipboard!'); }catch(e){ toast('❌ Copy failed'); } }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); if(msg.includes('✅')) t.classList.add('success'); setTimeout(()=>{t.classList.remove('show'); t.classList.remove('success');}, 2000); }
+
+function search(){
+  disableLinks();
+  const raw=document.getElementById('raw').value;
+  const nums=extractNumbers(raw);
+  if(nums.length<2){ document.getElementById('raw').focus(); return; }
+  try{
+    const X=nums[0], Y=nums[1];
+    const p=convertOnce(X,Y);
+    showOut(p.lat,p.lon);
+    const lat=p.lat.toFixed(6), lon=p.lon.toFixed(6);
+    setLink('gmaps','https://www.google.com/maps/search/?api=1&query='+lat+','+lon,false);
+    }catch(e){ /* ignore */ }
+}
+
+const $=id=>document.getElementById(id);
+$('go').addEventListener('click', search);
+$('raw').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); search(); }});
+$('copyAll').addEventListener('click', ()=> copyText(document.getElementById('coords').textContent));
+</script>
+</body>
+</html>
