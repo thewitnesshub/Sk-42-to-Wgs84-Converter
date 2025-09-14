@@ -16,21 +16,6 @@ Enter coordinates in any of these formats:
 - `5171098, 6481253` 
 - `5171098 6481253`
 
-## Examples
-
-Here are different ways you can enter the same coordinates:
-
-```
-X = 5171098    Y = 6481253
-5171098, 6481253
-5171098 6481253
-X: 5171098, Y: 6481253
-5171098    6481253
-X=5171098 Y=6481253
-```
-
-All of these will convert to the same result: `58.123456, 27.654321`
-
 ## About
 
 Converts Soviet-era SK-42 Gauss-Krüger coordinates to modern WGS84 latitude/longitude coordinates used by GPS systems.
