@@ -188,6 +188,43 @@
       color: var(--text-secondary);
       opacity: 0.6;
     }
+    
+    .examples {
+      margin-top: 8px;
+    }
+    
+    .examples-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    
+    .example-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .example-items span {
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    }
+    
+    .example-items span:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent);
+      color: var(--text);
+    }
 
     .btn { 
       appearance: none; 
@@ -396,6 +433,21 @@
         transition-duration: 0.01ms !important;
       }
     }
+    
+    .credit {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0.7;
+      font-weight: 500;
+      z-index: 1000;
+    }
+    
+    .credit:hover {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -410,6 +462,14 @@
         <div class="inputRow">
           <input type="text" id="raw" autocomplete="off" placeholder="X = 5171098    Y = 6481253" />
           <button id="go" class="btn" aria-label="Convert coordinates">Convert</button>
+        </div>
+        <div class="examples">
+          <div class="examples-label">Examples:</div>
+          <div class="example-items">
+            <span>X = 5171098 Y = 6481253</span>
+            <span>5171098, 6481253</span>
+            <span>5171098 6481253</span>
+          </div>
         </div>
       </div>
 
@@ -428,6 +488,8 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite">✅ Copied to clipboard!</div>
+  
+  <div class="credit">Made by TheWitness</div>
 
 <script>
 // Ellipsoids
@@ -498,6 +560,14 @@ const $=id=>document.getElementById(id);
 $('go').addEventListener('click', search);
 $('raw').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); search(); }});
 $('copyAll').addEventListener('click', ()=> copyText(document.getElementById('coords').textContent));
+
+// Make example coordinates clickable
+document.querySelectorAll('.example-items span').forEach(span => {
+  span.addEventListener('click', () => {
+    document.getElementById('raw').value = span.textContent;
+    document.getElementById('raw').focus();
+  });
+});
 </script>
 </body>
 </html>
